@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://rcjjz7prgg-sudo.github.io/SHALYNX-UNIVERSE/sitemap.xml

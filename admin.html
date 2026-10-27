@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><title>SHALYNX Staff Console</title>
+<style>
+:root{--g:#123d30;--l:#c8e3a7;--ln:#e4e7df}*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:#f8f8f4;color:#17241f;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+header{background:#102f25;color:#f1f5ea;padding:14px 5%;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+main{max-width:980px;margin:0 auto;padding:18px 5% 60px}
+input,select,textarea,button{font:inherit;border:1px solid var(--ln);border-radius:8px;padding:10px;background:#fff;min-height:42px}
+button{cursor:pointer;font-weight:700}.pr{background:var(--g);color:#fff;border-color:var(--g)}
+.card{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:16px;margin-bottom:12px}
+.top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.tag{font-size:11px;font-weight:800;background:#f6ebd4;color:#7c5f22;border-radius:99px;padding:3px 9px}
+.mu{color:#68736d;font-size:13px}.err{color:#b3261e}.nt{background:#edf2e8;border-radius:8px;padding:8px;margin:6px 0;font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
+:focus-visible{outline:3px solid #8cc7a9;outline-offset:2px}
+</style></head><body>
+<header><b>SHALYNX Staff Console</b><span id="who" class="mu" style="color:#b3c5b8"></span></header>
+<main id="m"></main>
+<script>
+/* Public project URL and anon (publishable) key only. Never put the service-role key here. */
+var CFG={url:'https://bvqspkbjdnblxmikkvar.supabase.co',key:'sb_publishable_ClpBYDbYC6H5ZlrerQPJ6Q_WtvRWm3j'};
+var ST=['submitted','under_review','awaiting_information','in_progress','completed','cancelled'];
+var CP={imsu:'IMSU',absu:'ABSU',alvan:'Alvan',futo:'FUTO',uniport:'UNIPORT',ign:'Ignatius'};
+var SESS=null,ROWS=[],NOTES={},ROLES=[],F={s:'',c:''},MSG='';
+try{SESS=JSON.parse(localStorage.getItem('shx_admin')||'null')}catch(e){}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function sv(){try{if(SESS)localStorage.setItem('shx_admin',JSON.stringify(SESS));else localStorage.removeItem('shx_admin')}catch(e){}}
+function api(p,o){o=o||{};var h={apikey:CFG.key,'Content-Type':'application/json',Authorization:'Bearer '+(SESS&&!o.anon?SESS.token:CFG.key)};if(o.prefer)h.Prefer=o.prefer;
+return fetch(CFG.url+p,{method:o.method||'GET',headers:h,body:o.body?JSON.stringify(o.body):undefined}).then(function(r){return r.text().then(function(t){var j;try{j=JSON.parse(t)}catch(e){j=t}if(!r.ok)throw new Error((j&&(j.message||j.msg||j.error_description))||'Error '+r.status);return j})})}
+function call(p,o){return api(p,o).catch(function(e){if(SESS&&SESS.rt&&/JWT/i.test(e.message))return api('/auth/v1/token?grant_type=refresh_token',{method:'POST',anon:1,body:{refresh_token:SESS.rt}}).then(function(r){SESS.token=r.access_token;SESS.rt=r.refresh_token;sv();return api(p,o)});throw e})}
+function login(){var e=document.getElementById('e').value.trim(),p=document.getElementById('p').value;MSG='Signing in...';draw();
+api('/auth/v1/token?grant_type=password',{method:'POST',anon:1,body:{email:e,password:p}}).then(function(r){SESS={token:r.access_token,rt:r.refresh_token,email:e};sv();MSG='';load()}).catch(function(x){MSG=x.message;draw()})}
+function out(){SESS=null;sv();ROWS=[];draw()}
+function load(){MSG='Loading...';draw();
+call('/rest/v1/staff_roles?select=role').then(function(r){ROLES=r.map(function(x){return x.role});if(ROLES.indexOf('admin')<0&&ROLES.indexOf('support')<0)throw new Error('This account does not have a support or admin role.');return call('/rest/v1/service_requests?select=*&order=created_at.desc&limit=200')})
+.then(function(r){ROWS=r;return call('/rest/v1/request_notes?select=request_id,note,created_at&order=created_at.asc')}).then(function(n){NOTES={};n.forEach(function(x){(NOTES[x.request_id]=NOTES[x.request_id]||[]).push(x)});MSG='';draw()}).catch(function(e){MSG=e.message;draw()})}
+function setSt(id,v){call('/rest/v1/service_requests?id=eq.'+id,{method:'PATCH',prefer:'return=minimal',body:{status:v}}).then(function(){ROWS.forEach(function(r){if(r.id===id)r.status=v});MSG='Status updated.';draw()}).catch(function(e){MSG='Not saved: '+e.message;draw()})}
+function addNote(id){var i=document.getElementById('n'+id),t=i.value.trim();if(!t)return i.focus();
+call('/rest/v1/request_notes',{method:'POST',prefer:'return=minimal',body:{request_id:id,note:t.slice(0,1000)}}).then(function(){(NOTES[id]=NOTES[id]||[]).push({note:t,created_at:new Date().toISOString()});draw()}).catch(function(e){MSG='Note not saved: '+e.message;draw()})}
+function draw(){var m=document.getElementById('m');document.getElementById('who').textContent=SESS?SESS.email+(ROLES.length?' ('+ROLES.join(', ')+')':''):'';
+if(!CFG.url){m.innerHTML='<div class="card"><b>Not configured.</b><p class="mu">Set CFG.url and CFG.key at the top of admin.html.</p></div>';return}
+if(!SESS){m.innerHTML='<div class="card"><b>Staff sign in</b><p><input id="e" type="email" placeholder="Email" autocomplete="username" style="width:100%"></p><p><input id="p" type="password" placeholder="Password" autocomplete="current-password" style="width:100%"></p><button class="pr" onclick="login()">Sign in</button><p class="err">'+esc(MSG)+'</p></div>';return}
+var v=ROWS.filter(function(r){return(!F.s||r.status===F.s)&&(!F.c||r.institution_id===F.c)});
+m.innerHTML='<div class="top"><select aria-label="Status" onchange="F.s=this.value;draw()"><option value="">All statuses</option>'+ST.map(function(s){return'<option value="'+s+'"'+(F.s===s?' selected':'')+'>'+s.replace(/_/g,' ')+'</option>'}).join('')+'</select><select aria-label="Campus" onchange="F.c=this.value;draw()"><option value="">All campuses</option>'+Object.keys(CP).map(function(c){return'<option value="'+c+'"'+(F.c===c?' selected':'')+'>'+CP[c]+'</option>'}).join('')+'</select><button onclick="load()">Refresh</button><button onclick="out()">Sign out</button><span class="mu">'+v.length+' of '+ROWS.length+' requests</span></div><p class="'+(/not|Not/.test(MSG)?'err':'mu')+'" aria-live="polite">'+esc(MSG)+'</p>'+
+(v.length?v.map(function(r){return'<div class="card"><div class="row" style="align-items:center"><b>'+esc(r.reference)+'</b><span class="tag">'+esc(CP[r.institution_id]||r.institution_id)+'</span><select aria-label="Status for '+esc(r.reference)+'" onchange="setSt(\''+r.id+'\',this.value)">'+ST.map(function(s){return'<option value="'+s+'"'+(r.status===s?' selected':'')+'>'+s.replace(/_/g,' ')+'</option>'}).join('')+'</select></div><p class="mu">'+esc(r.category)+' &middot; '+new Date(r.created_at).toLocaleString()+'</p><p><b>'+esc(r.contact_name)+'</b>'+(r.contact_phone?' &middot; <a href="tel:'+esc(r.contact_phone)+'">'+esc(r.contact_phone)+'</a>':'')+'</p><p style="white-space:pre-wrap">'+esc(r.message)+'</p>'+
+(NOTES[r.id]||[]).map(function(n){return'<div class="nt">'+esc(n.note)+' <span class="mu">'+new Date(n.created_at).toLocaleDateString()+'</span></div>'}).join('')+'<div class="row"><input id="n'+r.id+'" maxlength="1000" placeholder="Internal note (staff only)"><button onclick="addNote(\''+r.id+'\')" style="flex:0">Add note</button></div></div>'}).join(''):'<p class="mu">No requests match.</p>')}
+draw();if(SESS&&CFG.url)load();
+</script></body></html>
