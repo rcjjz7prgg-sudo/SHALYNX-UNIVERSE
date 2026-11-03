@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src https://bvqspkbjdnblxmikkvar.supabase.co; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>SHALYNX · Set your password</title>
+<style>
+  :root{--g:#123d30;--bg:#f8f8f4;--line:#dfe3dc;--mut:#5f6b64}
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.5 system-ui,-apple-system,"DM Sans",sans-serif;background:var(--bg);color:#16231d;display:grid;min-height:100vh;place-items:center;padding:16px}
+  main{width:100%;max-width:420px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px}
+  h1{font-size:1.4rem;margin:0 0 6px;color:var(--g)} p{color:var(--mut);margin:0 0 18px}
+  label{display:block;font-weight:600;margin:14px 0 6px;font-size:.9rem}
+  input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit}
+  button,a.btn{display:inline-block;margin-top:18px;width:100%;padding:13px;border:0;border-radius:10px;background:var(--g);color:#fff;font:inherit;font-weight:600;text-align:center;text-decoration:none;cursor:pointer}
+  button[disabled]{opacity:.6;cursor:wait}
+  .msg{margin-top:14px;padding:10px 12px;border-radius:10px;font-size:.92rem}
+  .err{background:#fdeceb;color:#8a1c14}.ok{background:#e8f4ec;color:#14532d}
+  [hidden]{display:none!important}
+  small{color:var(--mut)}
+</style>
+</head>
+<body>
+<main>
+  <h1>SHALYNX Staff</h1>
+
+  <section id="set" hidden>
+    <p id="setIntro">Choose a password to finish setting up your account.</p>
+    <label for="pw">New password (at least 12 characters)</label>
+    <input id="pw" type="password" autocomplete="new-password" minlength="12">
+    <label for="pw2">Repeat password</label>
+    <input id="pw2" type="password" autocomplete="new-password" minlength="12">
+    <button id="save" type="button">Save password</button>
+  </section>
+
+  <section id="req" hidden>
+    <p>Enter your email and we will request a password-reset link.</p>
+    <label for="em">Email</label>
+    <input id="em" type="email" autocomplete="email">
+    <button id="send" type="button">Request reset link</button>
+    <small>Email delivery depends on the project's mail settings. If nothing arrives, ask an administrator.</small>
+  </section>
+
+  <section id="done" hidden>
+    <p>All set. Your password is saved.</p>
+    <a class="btn" href="staff.html">Continue to sign in</a>
+  </section>
+
+  <div id="msg" class="msg" role="status" hidden></div>
+</main>
+<script src="accept.js"></script>
+</body>
+</html>

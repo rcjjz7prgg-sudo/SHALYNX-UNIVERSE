@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src https://bvqspkbjdnblxmikkvar.supabase.co; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>SHALYNX · Staff</title>
+<style>
+  :root{--g:#123d30;--bg:#f8f8f4;--line:#dfe3dc;--mut:#5f6b64}
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.5 system-ui,-apple-system,"DM Sans",sans-serif;background:var(--bg);color:#16231d}
+  header{background:var(--g);color:#fff;padding:14px 16px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  header b{font-size:1.05rem} header span{opacity:.85;font-size:.85rem}
+  main{max-width:760px;margin:0 auto;padding:16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+  h2{margin:0 0 10px;font-size:1.1rem;color:var(--g)}
+  label{display:block;font-weight:600;margin:12px 0 5px;font-size:.88rem}
+  input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+  button{padding:11px 14px;border:0;border-radius:10px;background:var(--g);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+  button.sec{background:#fff;color:var(--g);border:1px solid var(--line)} button.bad{background:#8a1c14}
+  button[disabled]{opacity:.6;cursor:wait}
+  .row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1 1 150px}
+  .msg{margin:12px 0;padding:10px 12px;border-radius:10px;font-size:.92rem;word-break:break-word}
+  .err{background:#fdeceb;color:#8a1c14}.ok{background:#e8f4ec;color:#14532d}.warn{background:#fff6dd;color:#5c4400}
+  table{width:100%;border-collapse:collapse;font-size:.92rem} td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  .pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.78rem;background:#eef1ec}
+  .st-active{background:#e8f4ec;color:#14532d}.st-invited{background:#fff6dd;color:#5c4400}.st-suspended,.st-revoked{background:#fdeceb;color:#8a1c14}
+  [hidden]{display:none!important} .mut{color:var(--mut);font-size:.85rem}
+  .acts{display:flex;gap:6px;flex-wrap:wrap}.acts button{padding:6px 10px;font-size:.82rem}
+</style>
+</head>
+<body>
+<header><b>SHALYNX Staff</b><span id="who"></span><button id="out" class="sec" hidden type="button">Sign out</button></header>
+<main>
+  <div id="msg" class="msg" role="status" hidden></div>
+
+  <section id="login" class="card" hidden>
+    <h2>Sign in</h2>
+    <label for="e">Email</label><input id="e" type="email" autocomplete="username">
+    <label for="p">Password</label><input id="p" type="password" autocomplete="current-password">
+    <div class="row" style="margin-top:14px"><button id="go" type="button">Sign in</button><a href="accept.html" class="mut" style="align-self:center">Forgot password?</a></div>
+  </section>
+
+  <section id="app" hidden>
+    <div class="card" id="inviteCard">
+      <h2>Invite a staff member</h2>
+      <label for="iname">Full name</label><input id="iname" maxlength="120">
+      <label for="iemail">Email</label><input id="iemail" type="email" maxlength="254">
+      <div class="row">
+        <div><label for="irole">Role</label><select id="irole"></select></div>
+        <div id="campusBox"><label for="icampus">Campus</label><select id="icampus"></select></div>
+      </div>
+      <label for="imode">Delivery</label>
+      <select id="imode">
+        <option value="link">Give me a link to send myself (works now)</option>
+        <option value="email">Ask the system to email it (needs mail provider set up)</option>
+      </select>
+      <div style="margin-top:14px"><button id="invite" type="button">Create invitation</button></div>
+      <div id="result" hidden></div>
+    </div>
+
+    <div class="card">
+      <h2>Staff</h2>
+      <div id="list" class="mut">Loading…</div>
+    </div>
+  </section>
+</main>
+<script src="staff.js"></script>
+</body>
+</html>
